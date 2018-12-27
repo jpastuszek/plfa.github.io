@@ -346,6 +346,8 @@ For example, let's add two and three:
 _ : 2 + 3 ≡ 5
 _ =
   begin
+    3 + 2
+  ≡⟨⟩
     2 + 3
   ≡⟨⟩    -- is shorthand for
     (suc (suc zero)) + (suc (suc (suc zero)))
@@ -424,6 +426,27 @@ other word for evidence, which we will use interchangeably, is _proof_.
 
 Compute `3 + 4`, writing out your reasoning as a chain of equations.
 
+\begin{code}
+_ : 3 + 4 ≡ 7
+_ =
+  begin
+    3 + 4
+  ≡⟨⟩
+    suc 2 + 4
+  ≡⟨⟩
+    suc (2 + 4)
+  ≡⟨⟩
+    suc (suc 1 + 4)
+  ≡⟨⟩
+    suc (suc (1 + 4))
+  ≡⟨⟩
+    suc (suc (suc (0 + 4)))
+  ≡⟨⟩
+    suc (suc (suc 4))
+  ≡⟨⟩
+    7
+  ∎
+\end{code}
 
 ## Multiplication
 
@@ -479,7 +502,24 @@ it can easily be inferred from the corresponding term.
 #### Exercise `*-example` {#times-example}
 
 Compute `3 * 4`, writing out your reasoning as a chain of equations.
-
+\begin{code}
+_ =
+  begin
+    3 * 4
+  ≡⟨⟩
+    4 + (2 * 4)
+  ≡⟨⟩
+    4 + (4 + (1 * 4))
+  ≡⟨⟩
+    4 + (4 + (4 + (0 * 4)))
+  ≡⟨⟩
+    4 + (4 + (4 + 0))
+  ≡⟨⟩
+    4 + 4 + 4
+  ≡⟨⟩    -- simplify
+    12
+  ∎
+\end{code}
 
 #### Exercise `_^_` (recommended) {#power}
 
@@ -488,8 +528,34 @@ Define exponentiation, which is given by the following equations:
     n ^ 0        =  1
     n ^ (1 + m)  =  n * (n ^ m)
 
+\begin{code}
+_^_ : ℕ → ℕ → ℕ
+n ^ zero  =  1
+n ^ (suc m) = n * (n ^ m)
+\end{code}
+
 Check that `3 ^ 4` is `81`.
 
+\begin{code}
+_ =
+  begin
+    3 ^ 4
+  ≡⟨⟩
+    3 * (3 ^ 3)
+  ≡⟨⟩
+    3 * (3 * (3 ^ 2))
+  ≡⟨⟩
+    3 * (3 * (3 * (3 ^ 1)))
+  ≡⟨⟩
+    3 * (3 * (3 * (3 * (3 ^ 0))))
+  ≡⟨⟩
+    3 * (3 * (3 * (3 * 1)))
+  ≡⟨⟩
+    3 * (3 * (3 * 3))
+  ≡⟨⟩
+    81
+  ∎
+\end{code}
 
 ## Monus
 
@@ -549,6 +615,36 @@ _ =
 #### Exercise `∸-examples` (recommended) {#monus-examples}
 
 Compute `5 ∸ 3` and `3 ∸ 5`, writing out your reasoning as a chain of equations.
+
+\begin{code}
+_ =
+  begin
+     5 ∸ 3
+  ≡⟨⟩
+    4 ∸ 2
+  ≡⟨⟩
+    3 ∸ 1
+  ≡⟨⟩
+    2 ∸ 0
+  ≡⟨⟩
+     2
+  ∎
+\end{code}
+
+\begin{code}
+_ =
+  begin
+     3 ∸ 5
+  ≡⟨⟩
+     2 ∸ 4
+  ≡⟨⟩
+     2 ∸ 3
+  ≡⟨⟩
+     0 ∸ 3
+  ≡⟨⟩
+     0
+  ∎
+\end{code}
 
 
 ## Precedence
@@ -874,6 +970,13 @@ Define a function
 
     inc : Bin → Bin
 
+\begin{code}
+inc_ : Bin → Bin
+inc nil = x1 nil
+inc (x0 x) = x1 x
+inc (x1 x) = x0 (inc x)
+\end{code}
+
 that converts a bitstring to the bitstring for the next higher
 number.  For example, since `1100` encodes twelve, we should have:
 
@@ -881,6 +984,33 @@ number.  For example, since `1100` encodes twelve, we should have:
 
 Confirm that this gives the correct answer for the bitstrings
 encoding zero through four.
+
+\begin{code}
+_ =
+  begin
+     inc (x1 x1 x0 x1 nil)
+  ≡⟨⟩
+     x0 x0 x1 x1 nil
+  ∎
+\end{code}
+
+\begin{code}
+_ =
+  begin
+     inc (x0 nil)
+  ≡⟨⟩
+     x1 nil
+  ∎
+\end{code}
+
+\begin{code}
+_ =
+  begin
+     inc (x1 nil)
+  ≡⟨⟩
+     x0 (x1 nil)
+  ∎
+\end{code}
 
 Using the above, define a pair of functions to convert
 between the two representations.
@@ -892,7 +1022,36 @@ For the former, choose the bitstring to have no leading zeros if it
 represents a positive natural, and represent zero by `x0 nil`.
 Confirm that these both give the correct answer for zero through four.
 
+\begin{code}
+to_ : ℕ → Bin
+to zero = x0 nil
+to (suc x) = inc (to x)
+\end{code}
 
+\begin{code}
+_ =
+  begin
+    to 11
+  ≡⟨⟩
+     x1 x1 x0 x1 nil
+  ∎
+\end{code}
+
+\begin{code}
+from_ : Bin → ℕ
+from nil = zero
+from (x0 x) = 0 + (from x) * 2
+from (x1 x) = 1 + (from x) * 2
+\end{code}
+
+\begin{code}
+_ =
+  begin
+    from x1 x1 x0 x1 nil
+  ≡⟨⟩
+    11
+  ∎
+\end{code}
 
 ## Standard library
 
